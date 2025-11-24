@@ -1,8 +1,8 @@
 # Tamagotchi Digimon – Projeto em Java
 
- Este projeto foi desenvolvido para a disciplina de Programação Orientada a Objetos, ministrada pelo professor [**Bruno Borges**](https://github.com/silv4bufersa).
+&nbsp;&nbsp;&nbsp;Este projeto foi desenvolvido para a disciplina de Programação Orientada a Objetos, ministrada pelo professor [**Bruno Borges**](https://github.com/silv4bufersa).
 
- O objetivo é implementar um Tamagotchi baseado no universo Digimon utilizando os principais conceitos de POO em Java, como herança, polimorfismo, interfaces, classes abstratas, enums e uma organização profissional de pacotes. O projeto irá incluir também uma interface gráfica personalizada inspirada em um Digivice.
+&nbsp;&nbsp;&nbsp;O objetivo é implementar um Tamagotchi baseado no universo Digimon utilizando os principais conceitos de POO em Java, como herança, polimorfismo, interfaces, classes abstratas, enums e uma organização profissional de pacotes. O projeto irá incluir também uma interface gráfica personalizada inspirada em um Digivice.
 
 ## Participantes do Projeto
 - [**Claudio Felipe**](https://github.com/C-Felipe/) 
@@ -14,7 +14,7 @@
 - [**Rafael Fernandes**](https://github.com/RafaelFernaa)  
 
 ## Objetivo do Projeto
- Criar um sistema funcional que simule um Tamagotchi, incluindo:
+ &nbsp;&nbsp;&nbsp;Criar um sistema funcional que simule um Tamagotchi, incluindo:
 - Escolha do Digimon inicial (Agumon, Tailmon, Piyomon e Gabumon)
 - Variação de atributos (fome, energia, humor)
 - Sistema de evolução baseado em nível, tempo vivo ou ambos
