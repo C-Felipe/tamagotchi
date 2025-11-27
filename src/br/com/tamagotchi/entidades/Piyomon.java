@@ -1,5 +1,3 @@
-e Piyomon.java
-
 package br.com.tamagotchi.entidades;
 
 import br.com.tamagotchi.enums.Humor;
