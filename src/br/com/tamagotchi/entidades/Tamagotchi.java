@@ -55,3 +55,87 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
     public void verificarEvolucao(){
 
     }
+
+ /**
+     * GETTERS e SETTERS
+     */
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public int getFome() {
+        return fome;
+    }
+
+    public void setFome(int fome) {
+        this.fome = fome;
+    }
+
+    public int getEnergia() {
+        return energia;
+    }
+
+    public void setEnergia(int energia) {
+        this.energia = energia;
+    }
+
+    public int getFelicidade() {
+        return felicidade;
+    }
+
+    public void setFelicidade(int felicidade) {
+        this.felicidade = felicidade;
+    }
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
+    }
+
+    public int getDiasVividos() {
+        return diasVividos;
+    }
+
+    public void setDiasVividos(int diasVividos) {
+        this.diasVividos = diasVividos;
+    }
+
+    public Humor getHumor() {
+        return humor;
+    }
+
+    public void setHumor(Humor humor) {
+        this.humor = humor;
+    }
+
+    public int getExperiencia() {
+        return experiencia;
+    }
+
+    private int experiencia = 0;
+
+    /**
+     * Método auxiliar para ganhar XP
+     */
+
+    protected void ganharExperiencia(int pontos) {
+        this.experiencia += pontos;
+        System.out.println(getNome() + " ganhou " + pontos + " de experiência!");
+
+        // Se passar de 100, sobe de nível
+        if (this.experiencia >= 100) {
+            this.nivel++;
+            this.experiencia = 0;
+            System.out.println("PARABÉNS! " + getNome() + " subiu para o nível " + this.nivel + "!");
+            verificarEvolucao(); // Checa se já pode evoluir
+        }
+    }
+}
