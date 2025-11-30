@@ -1,3 +1,5 @@
+//o flamengo é seleção !!! 4 libertadores
+
 package br.com.tamagotchi.entidades;
 
 import br.com.tamagotchi.enums.Humor;
