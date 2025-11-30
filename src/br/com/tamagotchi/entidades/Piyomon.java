@@ -41,5 +41,4 @@ public class Piyomon extends Tamagotchi {
         if (getFelicidade() < 40) setHumor(Humor.TRISTE);
         else if (getEnergia() < 10) setHumor(Humor.CANSADO);
         else setHumor(Humor.FELIZ);
-    }
 }
