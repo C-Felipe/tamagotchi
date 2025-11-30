@@ -4,12 +4,14 @@ import br.com.tamagotchi.enums.Humor;
 import br.com.tamagotchi.interfaces.IAlimentavel;
 import br.com.tamagotchi.interfaces.IBrincavel;
 import br.com.tamagotchi.interfaces.IDormivel;
+import java.io.Serializable; // <--- 1. 
+
 
 /**
  * Classe feita para representar a estrutura básica dos Digimons e tambem define os atributos e comportamentos comuns.
  */
 
-public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel {
+public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel, Serializable {
     // Declaração dos atributos;
     private String nome;
     private int fome;
@@ -18,7 +20,7 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
     private int nivel;
     private int diasVividos;
     private Humor humor;
-
+    private static final long serialVersionUID = 1L;
 
     /**
      * CONSTRUTURO para iniciar o tamagotchi com valores padrão.
@@ -56,7 +58,8 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
 
     }
 
- /**
+
+    /**
      * GETTERS e SETTERS
      */
 
@@ -73,7 +76,7 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
     }
 
     public void setFome(int fome) {
-        this.fome = fome;
+        this.fome = Math.max(0, Math.min(100, fome));
     }
 
     public int getEnergia() {
@@ -81,7 +84,7 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
     }
 
     public void setEnergia(int energia) {
-        this.energia = energia;
+        this.energia = Math.max(0, Math.min(100, energia));
     }
 
     public int getFelicidade() {
@@ -89,7 +92,7 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
     }
 
     public void setFelicidade(int felicidade) {
-        this.felicidade = felicidade;
+        this.felicidade = Math.max(0, Math.min(100, felicidade));
     }
 
     public int getNivel() {
