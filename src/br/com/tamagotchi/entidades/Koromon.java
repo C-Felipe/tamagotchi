@@ -1,5 +1,3 @@
-koromon.java
-
 package br.com.tamagotchi.entidades;
 
 public class Koromon extends Tamagotchi {

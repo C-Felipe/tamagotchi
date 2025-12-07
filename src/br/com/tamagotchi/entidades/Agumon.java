@@ -1,5 +1,3 @@
-agumon.java
-
 package br.com.tamagotchi.entidades;
 
 public class Agumon extends Tamagotchi {

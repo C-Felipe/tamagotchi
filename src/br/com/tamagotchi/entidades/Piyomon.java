@@ -1,5 +1,3 @@
-vc apagou o código todo e deixou so isso:
-
 package br.com.tamagotchi.entidades;
 
 public class Piyomon extends Tamagotchi {
