@@ -2,6 +2,8 @@ package br.com.tamagotchi.main;
 
 import br.com.tamagotchi.servicos.TamagotchiService;
 import br.com.tamagotchi.util.TempoUtil;
+import br.com.tamagotchi.exceptions.AcaoNaoPermitidaException;
+import br.com.tamagotchi.enums.Humor;
 import java.util.Scanner;
 
 public class Main {
@@ -12,13 +14,10 @@ public class Main {
 
         System.out.println("=== TAMAGOTCHI ===");
 
-        //para carregar o save
-        boolean carregou = service.carregarJogoSalvo();
-
-        //Se não carregou (não tinha save), começa um novo
-        if (!carregou) {
+        // Tenta carregar save existente, senão inicia novo jogo
+        if (!service.carregarJogoSalvo()) {
             System.out.println("Nenhum jogo salvo encontrado.");
-            System.out.println("Você encontrou um Digi-Ovo. Pressione ENTER para chocar.");
+            System.out.println("Pressione ENTER para chocar o Digi-Ovo.");
             scanner.nextLine();
             service.incubarOvo();
         }
@@ -26,15 +25,13 @@ public class Main {
         tempoUtil.iniciar();
 
         while (true) {
-            // verificação de morte;
-            if (service.getTamagotchi().getHumor().toString().equals("Morto")) {
+            // Verifica Game Over
+            if (service.getTamagotchi().getHumor() == Humor.MORTO) {
                 System.out.println("\n=================================");
                 System.out.println("    GAME OVER    ");
                 System.out.println("Seu Digimon partiu para um lugar melhor.");
                 System.out.println("=================================\n");
-
                 tempoUtil.parar();
-                scanner.close();
                 break;
             }
 
@@ -43,25 +40,44 @@ public class Main {
             System.out.println("1 - Alimentar");
             System.out.println("2 - Brincar");
             System.out.println("3 - Dormir");
-            System.out.println("0 - Salvar e Sair"); // Nova opção
+            System.out.println("0 - Salvar e Sair");
             System.out.print("Opção: ");
+
+            if (!scanner.hasNextInt()) {
+                System.out.println("Digite apenas números!");
+                scanner.next();
+                continue;
+            }
 
             int acao = scanner.nextInt();
 
-            switch (acao) {
-                case 1: service.alimentar(); break;
-                case 2: service.brincar(); break;
-                case 3: service.dormir(); break;
-                case 0:
-                    System.out.println("Salvando progresso...");
-                    service.salvarJogo();
-                    tempoUtil.parar();
-                    System.out.println("Até logo!");
-                    scanner.close();
-                    System.exit(0);
-                    break;
-                default: System.out.println("Opção inválida!");
+            try {
+                switch (acao) {
+                    case 1:
+                        service.alimentar();
+                        System.out.println("Nham nham!");
+                        break;
+                    case 2:
+                        service.brincar();
+                        System.out.println("Diversão!");
+                        break;
+                    case 3:
+                        service.dormir();
+                        System.out.println("Zzzzz...");
+                        break;
+                    case 0:
+                        System.out.println("Salvando progresso...");
+                        service.salvarJogo();
+                        tempoUtil.parar();
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Opção inválida!");
+                }
+            } catch (AcaoNaoPermitidaException e) {
+                System.out.println("\n" + e.getMessage() + "\n");
             }
         }
+        scanner.close();
     }
 }
