@@ -81,6 +81,6 @@ public class BarraStatus extends JPanel {
         // Borda (Cinza Escuro)
         g2.setColor(new Color(80, 80, 80));
         g2.setStroke(new BasicStroke(1));
-        g2.drawRoundRect(0, yBarra, larguraTotal, alturaBarra, 8, 8);
-    }
+        g2.drawRoundRect(0, yBarra, larguraTotal, alturaBarra,8,8);
+    }
 }
