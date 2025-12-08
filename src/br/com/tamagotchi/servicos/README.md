@@ -9,4 +9,8 @@
 
 ## Classes
 * *TamagotchiService:* Controlador principal do jogo.
+<<<<<<< HEAD
 * *PersistenciaService:* Gerenciador de arquivos (Serialização).
+=======
+* *PersistenciaService:* Gerenciador de arquivos (Serialização).
+>>>>>>> f66523de98705b82b5c608183f48f1ac444fc078

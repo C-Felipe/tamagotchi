@@ -1,18 +1,16 @@
 package br.com.tamagotchi.entidades;
 
 import br.com.tamagotchi.enums.Humor;
+import br.com.tamagotchi.exceptions.AcaoNaoPermitidaException;
 import br.com.tamagotchi.interfaces.IAlimentavel;
 import br.com.tamagotchi.interfaces.IBrincavel;
 import br.com.tamagotchi.interfaces.IDormivel;
-import java.io.Serializable; // <--- 1. 
+import java.io.Serializable;
 
+public abstract class Tamagotchi implements IAlimentavel, IBrincavel, IDormivel, Serializable {
 
-/**
- * Classe feita para representar a estrutura básica dos Digimons e tambem define os atributos e comportamentos comuns.
- */
+    private static final long serialVersionUID = 1L;
 
-public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel, Serializable {
-    // Declaração dos atributos;
     private String nome;
     private int fome;
     private int energia;
@@ -20,125 +18,163 @@ public abstract class Tamagotchi implements IAlimentavel, IBrincavel,  IDormivel
     private int nivel;
     private int diasVividos;
     private Humor humor;
-    private static final long serialVersionUID = 1L;
+    private int experiencia = 0;
 
-    /**
-     * CONSTRUTURO para iniciar o tamagotchi com valores padrão.
-     */
+    //para contar os "ticks" para morte do digimon;
+    private int tempoCritico = 0;
+
     public Tamagotchi(String nome) {
-        this .nome = nome;
+        this.nome = nome;
         this.energia = 100;
         this.felicidade = 75;
+        this.fome = 30;
         this.diasVividos = 0;
         this.nivel = 1;
-        this.fome = 30;
+        this.experiencia = 0;
         this.humor = Humor.FELIZ;
     }
 
-    /**
-     * MÉTODOS abstratos para definir os contratos.
-     */
+    @Override
+    public void alimentar() throws AcaoNaoPermitidaException {
+        if (humor == Humor.MORTO)
+            throw new AcaoNaoPermitidaException("O " + nome + " morreu e não pode comer...");
+
+        if (fome <= 0)
+            throw new AcaoNaoPermitidaException("A barriga dele já está cheia!");
+
+        setFome(getFome() - 15);
+        this.tempoCritico = 0; //Recupera o estado crítico ao ser cuidado
+
+        ganharExperiencia(5);
+        atualizarHumor();
+    }
 
     @Override
-    public abstract void alimentar();
+    public void brincar() throws AcaoNaoPermitidaException {
+        if (humor == Humor.MORTO)
+            throw new AcaoNaoPermitidaException("Não dá para brincar com fantasmas...");
+
+        if (energia <= 10)
+            throw new AcaoNaoPermitidaException("Ele está exausto! Deixe ele dormir um pouco.");
+
+        if (fome >= 90)
+            throw new AcaoNaoPermitidaException("Ele está faminto demais para brincar!");
+
+        setFelicidade(getFelicidade() + 20);
+        setEnergia(getEnergia() - 5);
+        setFome(getFome() + 5);
+        ganharExperiencia(10);
+        atualizarHumor();
+    }
 
     @Override
-    public abstract void brincar();
+    public void dormir() throws AcaoNaoPermitidaException {
+        if (humor == Humor.MORTO)
+            throw new AcaoNaoPermitidaException("RIP " + nome);
 
-    @Override
-    public abstract void dormir();
+        if (energia >= 95)
+            throw new AcaoNaoPermitidaException("Ele está sem sono agora!");
 
-    public abstract void atualizarHumor();
+        setEnergia(100);
+        this.tempoCritico = 0; // Recupera o estado crítico
 
-    public void passarTempo(){
-
+        setFome(getFome() + 10);
+        setFelicidade(getFelicidade() + 5);
+        atualizarHumor();
     }
-
-    public void verificarEvolucao(){
-
-    }
-
 
     /**
-     * GETTERS e SETTERS
+     * Processa a redução de status com o tempo.
+     * Também gerencia a regra de morte por negligência.
      */
+    public void passarTempo() {
+        if (humor == Humor.MORTO) return;
 
-    public String getNome() {
-        return nome;
+        setFome(getFome() + 2);
+        setEnergia(getEnergia() - 1);
+        setFelicidade(getFelicidade() - 1);
+
+        // Verifica estado crítico, tipo Fome e cansaço
+        if (fome >= 100 || energia <= 0) {
+            tempoCritico++;
+            System.out.println("Estado Crítico: " + tempoCritico + "/4");
+
+            // Se permanecer 4 ciclos (aprox. 20s) nesse estado, morre
+            if (tempoCritico >= 4) {
+                this.humor = Humor.MORTO;
+                System.out.println("O Digimon morreu.");
+                return;
+            }
+        } else {
+            tempoCritico = 0; // Reseta se os status voltarem ao normal
+        }
+
+        atualizarHumor();
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void atualizarHumor() {
+        if (humor == Humor.MORTO) return;
+
+        if (fome >= 70) {
+            this.humor = Humor.COM_FOME;
+        } else if (energia <= 30) {
+            this.humor = Humor.CANSADO;
+        } else if (felicidade <= 30) {
+            this.humor = Humor.TRISTE;
+        } else {
+            this.humor = Humor.FELIZ;
+        }
     }
 
-    public int getFome() {
-        return fome;
+    //Para Calcula XP necessário para o próximo nível
+    public int getXpNecessario() {
+        return 100 + (this.nivel - 1) * 50;
     }
-
-    public void setFome(int fome) {
-        this.fome = Math.max(0, Math.min(100, fome));
-    }
-
-    public int getEnergia() {
-        return energia;
-    }
-
-    public void setEnergia(int energia) {
-        this.energia = Math.max(0, Math.min(100, energia));
-    }
-
-    public int getFelicidade() {
-        return felicidade;
-    }
-
-    public void setFelicidade(int felicidade) {
-        this.felicidade = Math.max(0, Math.min(100, felicidade));
-    }
-
-    public int getNivel() {
-        return nivel;
-    }
-
-    public void setNivel(int nivel) {
-        this.nivel = nivel;
-    }
-
-    public int getDiasVividos() {
-        return diasVividos;
-    }
-
-    public void setDiasVividos(int diasVividos) {
-        this.diasVividos = diasVividos;
-    }
-
-    public Humor getHumor() {
-        return humor;
-    }
-
-    public void setHumor(Humor humor) {
-        this.humor = humor;
-    }
-
-    public int getExperiencia() {
-        return experiencia;
-    }
-
-    private int experiencia = 0;
-
-    /**
-     * Método auxiliar para ganhar XP
-     */
 
     protected void ganharExperiencia(int pontos) {
         this.experiencia += pontos;
-        System.out.println(getNome() + " ganhou " + pontos + " de experiência!");
+        int metaXp = getXpNecessario();
 
-        // Se passar de 100, sobe de nível
-        if (this.experiencia >= 100) {
+        System.out.println(getNome() + " ganhou " + pontos + " XP. Total: " + this.experiencia + "/" + metaXp);
+
+        if (this.experiencia >= metaXp) {
             this.nivel++;
             this.experiencia = 0;
-            System.out.println("PARABÉNS! " + getNome() + " subiu para o nível " + this.nivel + "!");
-            verificarEvolucao(); // Checa se já pode evoluir
+
+            //Para restaura status ao subir de nível
+            setEnergia(100);
+            setFelicidade(100);
+            setFome(0);
+
+            System.out.println("LEVEL UP! " + getNome() + " subiu para o nível " + this.nivel);
+            verificarEvolucao();
         }
     }
+
+    public void verificarEvolucao() {}
+
+    // Getters e Setters com limites (0 a 100)
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public int getFome() { return fome; }
+    public void setFome(int fome) { this.fome = Math.max(0, Math.min(100, fome)); }
+
+    public int getEnergia() { return energia; }
+    public void setEnergia(int energia) { this.energia = Math.max(0, Math.min(100, energia)); }
+
+    public int getFelicidade() { return felicidade; }
+    public void setFelicidade(int felicidade) { this.felicidade = Math.max(0, Math.min(100, felicidade)); }
+
+    public int getNivel() { return nivel; }
+    public void setNivel(int nivel) { this.nivel = nivel; }
+
+    public int getDiasVividos() { return diasVividos; }
+    public void setDiasVividos(int diasVividos) { this.diasVividos = diasVividos; }
+
+    public Humor getHumor() { return humor; }
+    public void setHumor(Humor humor) { this.humor = humor; }
+
+    public int getExperiencia() { return experiencia; }
+    public void setExperiencia(int experiencia) { this.experiencia = experiencia; }
 }

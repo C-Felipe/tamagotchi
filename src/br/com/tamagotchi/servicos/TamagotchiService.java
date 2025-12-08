@@ -2,190 +2,121 @@ package br.com.tamagotchi.servicos;
 
 import br.com.tamagotchi.entidades.*;
 import br.com.tamagotchi.enums.Humor;
+import br.com.tamagotchi.exceptions.AcaoNaoPermitidaException;
 import java.util.Random;
 
-import java.util.Scanner; // Para testes no console por enquanto
-
-/**
- * Controla a lógica do jogo, gerenciando o Tamagotchi atual,
- * a passagem de tempo e as regras de evolução e morte.
- */
 public class TamagotchiService {
 
     private Tamagotchi tamagotchi;
+    private final PersistenciaService persistencia = new PersistenciaService();
 
-    private PersistenciaService persistencia = new PersistenciaService();
-
-    /**
-     * Métodos para salvar e carregar;
-     */
     public boolean carregarJogoSalvo() {
-        Tamagotchi salvo  = persistencia.carregar();
+        Tamagotchi salvo = persistencia.carregar();
         if (salvo != null) {
+            // Se o save estiver corrompido ou morto, reseta.
+            if (salvo.getHumor() == Humor.MORTO) {
+                persistencia.deletarSave();
+                return false;
+            }
             this.tamagotchi = salvo;
-            System.out.println("Jogo Carregado com sucesso!");
             return true;
         }
         return false;
     }
 
     public void salvarJogo() {
-        //Só salva se o digimon tiver vivo;
-        if (this.tamagotchi != null && !this.tamagotchi.getHumor().equals("Morto")) {
+        if (this.tamagotchi != null && this.tamagotchi.getHumor() != Humor.MORTO) {
             persistencia.salvar(this.tamagotchi);
         } else {
-            System.out.println("Não é possível salvar, o Digimon não existe ou morreu.");
             persistencia.deletarSave();
         }
     }
 
-    /**
-     * Inicia o jogo criando um Digitama(ovo).
-     * O Digimon é escolhido aleatoriamente.
-     */
+    public void exibirStatus() {
+        if (tamagotchi != null) {
+            System.out.println(tamagotchi.getNome() + " - Fome: " + tamagotchi.getFome());
+        }
+    }
+
     public void incubarOvo() {
-        System.out.println("O ovo está chocando...");
-        try { Thread.sleep(1500); } catch (Exception e) {} // Suspense...
-        System.out.println("CRAACK! O ovo rachou!");
+        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
         Random sorteio = new Random();
-        int escolha = sorteio.nextInt(4) + 1; // Gera um número entre 1 e 4
+        int escolha = sorteio.nextInt(4) + 1;
 
         switch (escolha) {
-            case 1:
-                this.tamagotchi = new Koromon();
-                System.out.println("Parabéns! Nasceu um KOROMON!");
-                break;
-            case 2:
-                this.tamagotchi = new Tsunomon();
-                System.out.println("Parabéns! Nasceu um TSUNOMON!");
-                break;
-            case 3:
-                this.tamagotchi = new Pyocomon();
-                System.out.println("Parabéns! Nasceu uma PYOCOMON!");
-                break;
-            case 4:
-                this.tamagotchi = new Nyaromon();
-                System.out.println("Parabéns! Nasceu um NYAROMON!");
-                break;
+            case 1: this.tamagotchi = new Koromon(); break;
+            case 2: this.tamagotchi = new Tsunomon(); break;
+            case 3: this.tamagotchi = new Pyocomon(); break;
+            case 4: this.tamagotchi = new Nyaromon(); break;
         }
     }
 
-    //Ações do Jogador
+    // --- Ações do Jogador ---
 
-    public void alimentar() {
-        if (verificarVivo()) {
-            tamagotchi.alimentar();
-            verificarEstadoGeral();
-        }
+    public void alimentar() throws AcaoNaoPermitidaException {
+        verificarVivo();
+        tamagotchi.alimentar();
+        checarEvolucao();
+        salvarJogo();
     }
 
-    public void brincar() {
-        if (verificarVivo()) {
-            tamagotchi.brincar();
-            verificarEstadoGeral();
-        }
+    public void brincar() throws AcaoNaoPermitidaException {
+        verificarVivo();
+        tamagotchi.brincar();
+        checarEvolucao();
+        salvarJogo();
     }
 
-    public void dormir() {
-        if (verificarVivo()) {
-            tamagotchi.dormir();
-            verificarEstadoGeral();
-        }
+    public void dormir() throws AcaoNaoPermitidaException {
+        verificarVivo();
+        tamagotchi.dormir();
+        salvarJogo();
     }
 
-    public void exibirStatus() {
-        if (tamagotchi == null) return;
-        System.out.println("\n--- STATUS DE " + tamagotchi.getNome().toUpperCase() + " ---");
-        System.out.println("Nível: " + tamagotchi.getNivel());
-        // Mostra XP e quanto falta para 100
-        System.out.println("XP: " + tamagotchi.getExperiencia() + " / 100");
-        System.out.println("Fome: " + tamagotchi.getFome() + "/100");
-        System.out.println("Energia: " + tamagotchi.getEnergia() + "/100");
-        System.out.println("Felicidade: " + tamagotchi.getFelicidade() + "/100");
-        System.out.println("Humor: " + tamagotchi.getHumor());
-        System.out.println("------------------------------\n");
-    }
+    // --- Lógica Temporal ---
 
-    // Lógica de Jogo
-
-    /**
-     * Chamado pelo TempoUtil.
-     */
     public void processarPassagemDeTempo() {
-        if (!verificarVivo()) return;
+        if (tamagotchi == null || tamagotchi.getHumor() == Humor.MORTO) return;
 
-        // Aumenta fome e diminui energia naturalmente com o tempo
-        tamagotchi.setFome(tamagotchi.getFome() + 3);
-        tamagotchi.setEnergia(tamagotchi.getEnergia() - 2);
+        tamagotchi.passarTempo();
 
-        // Felicidade cai se estiver com fome ou sujo
-        if (tamagotchi.getFome() > 70 || tamagotchi.getEnergia() < 30) {
-            tamagotchi.setFelicidade(tamagotchi.getFelicidade() - 4);
+        // Se morreu após o tick de tempo, limpa o save
+        if (tamagotchi.getHumor() == Humor.MORTO) {
+            System.out.println("O Digimon morreu de causas naturais.");
+            persistencia.deletarSave();
         }
-
-        verificarEstadoGeral();
     }
 
-    private boolean verificarVivo() {
-        if (tamagotchi == null) return false;
-        if (tamagotchi.getHumor() == Humor.MORTO) {
-            System.out.println("O " + tamagotchi.getNome() + " morreu. Fim de jogo.");
-            return false;
-        }
-        return true;
-    }
+    private void checarEvolucao() {
+        if (tamagotchi == null) return;
 
-    /**
-     * Verifica Morte e Evolução.
-     */
-    private void verificarEstadoGeral() {
-        tamagotchi.atualizarHumor();
-
-        if (tamagotchi.getHumor() == Humor.MORTO) return;
-
-        if (tamagotchi.getFome() >= 100 || tamagotchi.getEnergia() <= 0) {
-            tamagotchi.setHumor(Humor.MORTO);
-        }
-
-        if (tamagotchi.getHumor() == Humor.MORTO) {
-            persistencia.deletarSave(); //Deleta o save, caso o digimon morra
-            return;
-        }
-
-        // Regra de Evolução: Se for Bebê e chegar no nível 2
         if (tamagotchi.getNivel() >= 2) {
-            tentarEvoluir();
+            Tamagotchi evolucao = null;
+
+            if (tamagotchi instanceof Koromon) evolucao = new Agumon();
+            else if (tamagotchi instanceof Tsunomon) evolucao = new Gabumon();
+            else if (tamagotchi instanceof Pyocomon) evolucao = new Piyomon();
+            else if (tamagotchi instanceof Nyaromon) evolucao = new Tailmon();
+
+            if (evolucao != null) {
+                // Transfere atributos
+                evolucao.setFelicidade(tamagotchi.getFelicidade());
+                evolucao.setFome(tamagotchi.getFome());
+                evolucao.setEnergia(tamagotchi.getEnergia());
+                evolucao.setDiasVividos(tamagotchi.getDiasVividos());
+                evolucao.setNivel(tamagotchi.getNivel());
+                evolucao.setExperiencia(tamagotchi.getExperiencia());
+
+                this.tamagotchi = evolucao;
+                salvarJogo();
+            }
         }
     }
 
-    /**
-     *Troca o objeto Bebê pelo objeto Criança.
-     */
-    private void tentarEvoluir() {
-        Tamagotchi evolucao = null;
-
-        // Verifica quem é o atual para saber quem será o próximo (instanceof)
-        if (tamagotchi instanceof Koromon) {
-            evolucao = new Agumon();
-        } else if (tamagotchi instanceof Tsunomon) {
-            evolucao = new Gabumon();
-        } else if (tamagotchi instanceof Pyocomon) {
-            evolucao = new Piyomon();
-        } else if (tamagotchi instanceof Nyaromon) {
-            evolucao = new Tailmon();
-        }
-
-        // Se houve uma evolução válida, faz a troca preservando dados
-        if (evolucao != null) {
-            System.out.println("\nO QUE? " + tamagotchi.getNome() + " ESTÁ EVOLUINDO!");
-
-            evolucao.setFelicidade(tamagotchi.getFelicidade());
-
-            this.tamagotchi = evolucao;
-
-            System.out.println("PARABÉNS! Ele evoluiu para " + tamagotchi.getNome() + "!\n");
-        }
+    private void verificarVivo() throws AcaoNaoPermitidaException {
+        if (tamagotchi == null) throw new AcaoNaoPermitidaException("Não há Digimon.");
+        if (tamagotchi.getHumor() == Humor.MORTO) throw new AcaoNaoPermitidaException("Ele morreu.");
     }
 
     public Tamagotchi getTamagotchi() {
