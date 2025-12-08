@@ -127,7 +127,6 @@ public class JanelaPrincipal extends JFrame {
         });
         btnSair.setBounds(btnSairX, btnSairY, tamanhoPower, tamanhoPower);
         painelFundo.add(btnSair);
-        tornarArrastavel(btnSair, "btnSairX", "btnSairY");
 
         //Botão Comer
         JButton btnComer = criarBotao(CAMINHO_BOTOES + "alimentar.png", "Comer", tamanhoBotao, () -> {
@@ -196,7 +195,6 @@ public class JanelaPrincipal extends JFrame {
         painelImagem = new PainelTamagotchi(service.getTamagotchi());
         painelImagem.setBounds(digimonX, digimonY, tamanhoDigimon, tamanhoDigimon);
         painelFundo.add(painelImagem);
-        tornarArrastavel(painelImagem, "digimonX", "digimonY");
 
         painelFundo.setComponentZOrder(lblMensagem, 0);
     }
@@ -278,18 +276,12 @@ public class JanelaPrincipal extends JFrame {
         lblCarcaca.setBounds(0, 0, getWidth(), getHeight());
         painelFundo.add(lblCarcaca);
 
+        // Mantive apenas o movimento da janela, removendo a edição do cenário (Ctrl+Click)
         MouseAdapter adaptadorFundo = new MouseAdapter() {
             public void mousePressed(MouseEvent e) { pontoInicialMouse = e.getPoint(); }
             public void mouseDragged(MouseEvent e) {
                 Point atual = e.getLocationOnScreen();
-                if (e.isControlDown()) {
-                    cenarioX += e.getX() - pontoInicialMouse.x;
-                    cenarioY += e.getY() - pontoInicialMouse.y;
-                    pontoInicialMouse = e.getPoint();
-                    repaint();
-                } else {
-                    setLocation(atual.x - pontoInicialMouse.x, atual.y - pontoInicialMouse.y);
-                }
+                setLocation(atual.x - pontoInicialMouse.x, atual.y - pontoInicialMouse.y);
             }
         };
         lblCarcaca.addMouseListener(adaptadorFundo);
@@ -317,24 +309,7 @@ public class JanelaPrincipal extends JFrame {
         BarraStatus b = new BarraStatus(service.getTamagotchi(), tipo, cor);
         b.setBounds(x, y, larguraBarra, alturaBarra);
         painel.add(b);
-        tornarArrastavel(b, tipo + "X", tipo + "Y");
         return b;
-    }
-
-    private void tornarArrastavel(Component comp, String nomeX, String nomeY) {
-        MouseAdapter adapter = new MouseAdapter() {
-            Point offset;
-            public void mousePressed(MouseEvent e) { offset = e.getPoint(); }
-            public void mouseDragged(MouseEvent e) {
-                Point atual = comp.getLocation();
-                comp.setLocation(atual.x + e.getX() - offset.x, atual.y + e.getY() - offset.y);
-            }
-            public void mouseReleased(MouseEvent e) {
-                System.out.println("private int " + nomeX + " = " + comp.getX() + ", " + nomeY + " = " + comp.getY() + ";");
-            }
-        };
-        comp.addMouseListener(adapter);
-        comp.addMouseMotionListener(adapter);
     }
 
     private JButton criarBotao(String icone, String texto, int tamanho, Runnable acao) {
