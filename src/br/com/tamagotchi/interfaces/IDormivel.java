@@ -1,9 +1,7 @@
 package br.com.tamagotchi.interfaces;
 
-/**
- Definindo o contrato para o compartamento de dormir.
- */
+import br.com.tamagotchi.exceptions.AcaoNaoPermitidaException;
 
 public interface IDormivel {
-    void dormir();
+    void dormir() throws AcaoNaoPermitidaException;
 }

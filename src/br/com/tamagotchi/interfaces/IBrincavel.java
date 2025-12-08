@@ -1,8 +1,7 @@
 package br.com.tamagotchi.interfaces;
-/**
-Definindo o contrato para o compartamento de brincar.
- */
+
+import br.com.tamagotchi.exceptions.AcaoNaoPermitidaException;
 
 public interface IBrincavel {
-    void brincar();
+    void brincar() throws AcaoNaoPermitidaException;
 }

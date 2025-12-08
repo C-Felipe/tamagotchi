@@ -1,9 +1,7 @@
 package br.com.tamagotchi.interfaces;
 
-/**
- Definindo o contrato para o compartamento de alimentar.
- */
+import br.com.tamagotchi.exceptions.AcaoNaoPermitidaException;
 
 public interface IAlimentavel {
-    void alimentar();
+    void alimentar() throws AcaoNaoPermitidaException;
 }
