@@ -1,6 +1,6 @@
 # Pacote: Utilitários (Infrastructure)
 
-Este pacote contém classes auxiliares que fornecem suporte à infraestrutura do jogo, focando principalmente em processamento concorrente.
+&nbsp;&nbsp;&nbsp;Este pacote contém classes auxiliares que fornecem suporte à infraestrutura do jogo, focando principalmente em processamento concorrente.
 
 ## Principais Responsabilidades
 * *Concorrência:* Gerenciamento de Threads paralelas.
