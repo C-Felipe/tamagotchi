@@ -39,7 +39,7 @@ Para acessar a descrição detalhada das entidades, atributos, arquitetura e dia
 
 Antes de começar, certifique-se de que sua máquina possui os seguintes requisitos:
 
-1.  **Java JDK 17** ou superior instalado e configurado no PATH.
+1.  **Java JDK 25** ou superior instalado e configurado no PATH.
     * *Para verificar, digite no terminal:* `java -version`
 2.  **Git** (para clonar o repositório).
 
